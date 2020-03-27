@@ -3,19 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package java.corona.milhalm;
+package k23.k23_2.k23_2_2;
 
 /**
  *
  * @author lukasmilhalm
  */
-public class JavaCoronaMilhalm {
+public class Listing2302 {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        MyThread2302 t = new MyThread2302();
+        t.start();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            //nichts
+        }
+        t.stop();
     }
 
 }

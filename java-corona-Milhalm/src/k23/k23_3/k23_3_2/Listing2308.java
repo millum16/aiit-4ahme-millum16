@@ -1,16 +1,14 @@
 package k23.k23_3.k23_3_2;
 
-//Verwendung der Klasse zur Primfaktorzerlegung
 import java.io.*;
 
-public class Listing2306 {
+public class Listing2308 {
 
-    public static void main(String[] args) throws IOException {
-        PrimeNumberTools pt = new PrimeNumberTools();
+    public static void main(String[] args) {
+        ThreadedPrimeNumberTools pt;
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(
                         new DataInputStream(System.in)));
-
         int num;
 
         try {
@@ -21,6 +19,7 @@ public class Listing2306 {
                 if (num == -1) {
                     break;
                 }
+                pt = new ThreadedPrimeNumberTools();
                 pt.printPrimeFactors(num);
             }
         } catch (IOException e) {

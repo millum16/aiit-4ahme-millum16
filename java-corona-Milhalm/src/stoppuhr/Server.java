@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -29,14 +30,21 @@ public class Server {
         timeOffset = 0;
 
         while (true) {
-            final Socket clientSocket = serverSocket.accept();
-            if (handlers.size() < 3) {
-                final ConnectionHandler handler = new ConnectionHandler(clientSocket);
-                new Thread(handler).start();
-                handlers.add(handler);
-            } else {
-                clientSocket.close();
+            final Socket socket = serverSocket.accept();
+            for (ConnectionHandler h : handlers) {
+                if (h.isClosed()) {
+                    handlers.remove(h);
+                }
             }
+
+            if (handlers.size() == 3) {
+                socket.close();
+                continue;
+            }
+
+            final ConnectionHandler handler = new ConnectionHandler(socket);
+            new Thread(handler).start();
+            handlers.add(handler);
         }
     }
 
@@ -62,6 +70,10 @@ public class Server {
         private Socket socket;
         private boolean master;
 
+        private ConnectionHandler(Socket socket) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
         public void ConnectionHandler(Socket socket) {
             this.socket = socket;
         }
@@ -76,54 +88,72 @@ public class Server {
 
         @Override
         public void run() {
-            try {
+            int count = 0;
 
-                while (true) {
+            while (true) {
+                try {
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+                    final String line = reader.readLine();
+                    count++;
+                    final Gson gson = new Gson();
+                    gson.toJson(line);
+                    final Request r = gson.fromJson(line, Request.class);
 
-                }
+                    if (r.isMaster()) {
+                        boolean setMasterTrue = true;
+                        for (ConnectionHandler c : handlers) {
+                            if (!c.equals(this) && c.isMaster() == true) {
+                                setMasterTrue = false;
+                                break;
+                            }
+                        }
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                final String line = reader.readLine();
+                        master = setMasterTrue;
+                    }
 
-                Gson gson = new Gson();
-                gson.toJson(line);
+                    if (r.isMaster()) {
+                        if (r.isStart()) {
+                            startMillis = System.currentTimeMillis();
+                        }
 
-                final Request r = gson.fromJson(line, Request.class);
+                        if (r.isStop()) {
+                            startMillis = 0;
+                        } else {
+                            timeOffset = System.currentTimeMillis() - startMillis + timeOffset;
+                        }
 
-                if (r.isMaster()) {
-                    for (ConnectionHandler c : handlers) {
-                        this.master = true;
-                        if (c != this && c.isMaster() == true) {
-                            master = false;
-                            break;
+                        if (r.isClear()) {
+                            timeOffset = 0;
+                            if (isTimerRunning()) {
+                                startMillis = System.currentTimeMillis();
+                            } else {
+                                startMillis = 0;
+                            }
+                        }
+
+                        if (r.isEnd()) {
+                            serverSocket.close();
+                            socket.close();
+                            synchronized (socket) {
+
+                            }
+
+                            handlers.remove(this);
+                            return;
                         }
                     }
-                }
 
-                if (master == true) {
-                    if (r.isStart()) {
-                        startMillis = System.currentTimeMillis();
-                    }
-                }
+                    final Response resp = new Response(master, count, isTimerRunning(), getTimerMillis());
+                    final String respString = gson.toJson(resp);
+                    writer.write(respString);
+                    writer.flush();
 
-                if (r.isClear()) {
-                    if (isTimerRunning()) {
-                        startMillis = System.currentTimeMillis();
-                    }
-                    timeOffset = 0;
-                }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
 
-                if (r.isStop()) {
-                    timeOffset = getTimerMillis();
-                    startMillis = 0;
                 }
-
-                if (r.isEnd()) {
-                    // Server Application schließen
-                    handlers.remove(this);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
         }
     }
+}

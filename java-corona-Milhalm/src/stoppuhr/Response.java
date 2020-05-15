@@ -11,6 +11,13 @@ public class Response {
     private boolean run;
     private long time;
 
+    public Response(boolean master, long count, boolean run, long time) {
+        this.master = master;
+        this.count = count;
+        this.run = run;
+        this.time = time;
+    }
+
     public boolean isMaster() {
         return master;
     }

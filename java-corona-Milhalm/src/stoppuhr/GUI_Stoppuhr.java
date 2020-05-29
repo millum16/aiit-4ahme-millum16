@@ -40,6 +40,8 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jButtonClear = new javax.swing.JButton();
         jButtonEnd = new javax.swing.JButton();
         jPanWest = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -71,6 +73,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonConnect, gridBagConstraints);
 
         jButtonDisconnect.setText("Disconnect");
@@ -79,6 +82,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonDisconnect, gridBagConstraints);
 
         jButtonStart.setText("Start");
@@ -87,6 +91,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonStart, gridBagConstraints);
 
         jButtonStop.setText("Stop");
@@ -95,6 +100,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonStop, gridBagConstraints);
 
         jButtonClear.setText("Clear");
@@ -103,6 +109,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonClear, gridBagConstraints);
 
         jButtonEnd.setText("End");
@@ -111,11 +118,22 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 15);
         jPanEast.add(jButtonEnd, gridBagConstraints);
 
         getContentPane().add(jPanEast, java.awt.BorderLayout.EAST);
 
         jPanWest.setLayout(new java.awt.GridBagLayout());
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipadx = 100;
+        gridBagConstraints.ipady = 100;
+        jPanWest.add(jScrollPane1, gridBagConstraints);
+
         getContentPane().add(jPanWest, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -167,7 +185,9 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
     private javax.swing.JPanel jPanEast;
     private javax.swing.JPanel jPanNorth;
     private javax.swing.JPanel jPanWest;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSlider jSlider1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel ms;
     // End of variables declaration//GEN-END:variables
 }

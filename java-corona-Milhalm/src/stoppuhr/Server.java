@@ -2,12 +2,13 @@ package stoppuhr;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,46 +18,50 @@ import java.util.List;
 public class Server {
 
     private ServerSocket serverSocket;
-    private final List<ConnectionHandler> handlers = new ArrayList<>();
+    private final List<ConnectionHandler> handlers = new LinkedList<ConnectionHandler>();
     private long timeOffset;
     private long startMillis;
 
-    public Server() {
-    }
-
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        timeOffset = 0;
-        startMillis = 0;
+        System.out.println("Server auf Port " + port + "gestartet!");
 
         while (true) {
-            final Socket clientSocket = serverSocket.accept();
-            for (ConnectionHandler h : handlers) {
-                if (h.isClosed()) {
-                    handlers.remove(h);
+            Socket socket = serverSocket.accept();
+
+            synchronized (handlers) {
+                for (int i = 0; i < handlers.size(); i++) {
+                    ConnectionHandler h = handlers.get(i);
+                    if (h.isClosed()) {
+                        handlers.remove(i--);
+                    }
+                }
+
+                if (handlers.size() < 3) {
+                    ConnectionHandler h = new ConnectionHandler(socket);
+                    handlers.add(h);
+                    new Thread(h).start();
+                } else {
+                    System.out.println("Connection refused (" + socket.toString() + ")");
+                    socket.close();
                 }
             }
-
-            if (handlers.size() < 3) {
-                final ConnectionHandler handler = new ConnectionHandler(clientSocket);
-                new Thread(handler).start(); //hintergrund Thread
-                handlers.add(handler);
-            } else {
-                clientSocket.close();
-            }
-
         }
     }
 
     public boolean isTimeRunning() {
-        return startMillis > 0;
+        synchronized (handlers) {
+            return startMillis > 0;
+        }
     }
 
     public long getTimeMillis() {
-        if (startMillis == 0) {
-            return timeOffset;
-        } else {
-            return (System.currentTimeMillis() - startMillis) + timeOffset;
+        synchronized (handlers) {
+            if (startMillis == 0) {
+                return timeOffset;
+            } else {
+                return (System.currentTimeMillis() - startMillis) + timeOffset;
+            }
         }
     }
 
@@ -89,58 +94,72 @@ public class Server {
             long count = 0;
 
             try {
-                while (true) {
-                    final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-                    final String line = reader.readLine(); //Zeichen werden in line gespeichert
+                System.out.println("ServerHandler Thread gestartet, Socket: " + socket);
+                final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
+                final Gson gson = new Gson();
+                count++;
+
+                while (true) {
+                    final String line = in.readLine(); //Zeichen werden in line gespeichert
                     if (line == null) {
                         socket.close();
                         return;
                     }
 
-                    count++;
-
-                    final Gson gson = new Gson();
                     gson.toJson(line);//die neuen Zeilen werden in ein Objekt gespeichert
                     System.out.println(line);
                     final Request req = gson.fromJson(line, Request.class); //neues Request Objekt, welches die Zeichen beinhaltet
                     System.out.println(req);
 
-                    if (req.isMaster()) {
-                        master = true;
-                        for (ConnectionHandler c : handlers) {
-                            if (c != this && c.isMaster() == true) {
-                                master = false;
-                                //response zurücksenden--------------------------
-                                break;
+                    if (req.master != null) {
+                        if (req.master) {
+                            ConnectionHandler currentMaster = null;
+
+                            synchronized (handlers) {
+                                for (ConnectionHandler c : handlers) {
+                                    if (c.isMaster() && !c.isClosed()) {
+                                        currentMaster = c;
+
+                                        break;
+                                    }
+                                }
+                                if (currentMaster == null) {
+                                    master = true;
+                                }
                             }
+                        } else {
+                            master = false;
                         }
                     }
-                    if (master) {
-                        if (req.isStart()) {
-                            startMillis = System.currentTimeMillis();
-                        }
 
-                        if (req.isClear()) {
-                            if (isTimeRunning()) {
+                    synchronized (handlers) {
+                        if (master) {
+                            if (req.isStart()) {
                                 startMillis = System.currentTimeMillis();
                             }
-                            timeOffset = 0;
-                        }
 
-                        if (req.isStop()) {
-                            timeOffset = getTimeMillis();
-                            startMillis = 0;
-                        }
+                            if (req.isClear()) {
+                                if (isTimeRunning()) {
+                                    startMillis = System.currentTimeMillis();
+                                }
+                                timeOffset = 0;
+                            }
 
-                        if (req.isEnd()) {
+                            if (req.isStop()) {
+                                timeOffset = getTimeMillis();
+                                startMillis = 0;
+                            }
 
-                            handlers.remove(this);
-                            //Server schließen-----------------------------
-                            serverSocket.close();
-                            socket.close();
-                            return;
+                            if (req.isEnd()) {
+
+                                handlers.remove(this);
+                                //Server schließen-----------------------------
+                                serverSocket.close();
+                                socket.close();
+                                return;
+                            }
                         }
                     }
 
@@ -149,8 +168,8 @@ public class Server {
                     System.out.println(resp);
                     final String respString = gson.toJson(resp);
                     System.out.println(respString);
-                    writer.write(respString);
-                    writer.flush();
+                    out.write(respString);
+                    out.flush();
 
                 }
 
@@ -160,7 +179,7 @@ public class Server {
         }
     }
 
-    //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
     public class Request {
 
         public Boolean master;
@@ -196,7 +215,7 @@ public class Server {
 
     }
 
-    //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
     public class Response {
 
         public Boolean master;

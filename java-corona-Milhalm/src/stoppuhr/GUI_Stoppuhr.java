@@ -40,8 +40,7 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jButtonClear = new javax.swing.JButton();
         jButtonEnd = new javax.swing.JButton();
         jPanWest = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        jLabCounter = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -125,14 +124,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
 
         jPanWest.setLayout(new java.awt.GridBagLayout());
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
-
+        jLabCounter.setFont(new java.awt.Font("Lucida Grande", 0, 48)); // NOI18N
+        jLabCounter.setText("0.000");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.ipadx = 100;
-        gridBagConstraints.ipady = 100;
-        jPanWest.add(jScrollPane1, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        jPanWest.add(jLabCounter, gridBagConstraints);
 
         getContentPane().add(jPanWest, java.awt.BorderLayout.CENTER);
 
@@ -182,12 +178,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
     private javax.swing.JButton jButtonEnd;
     private javax.swing.JButton jButtonStart;
     private javax.swing.JButton jButtonStop;
+    private javax.swing.JLabel jLabCounter;
     private javax.swing.JPanel jPanEast;
     private javax.swing.JPanel jPanNorth;
     private javax.swing.JPanel jPanWest;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSlider jSlider1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel ms;
     // End of variables declaration//GEN-END:variables
 }

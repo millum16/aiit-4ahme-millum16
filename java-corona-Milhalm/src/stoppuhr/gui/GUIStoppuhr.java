@@ -3,19 +3,33 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package stoppuhr;
+package stoppuhr.gui;
+
+import java.awt.Dimension;
+import java.util.List;
+import stoppuhr.ConnectionWorker;
 
 /**
  *
  * @author lukasmilhalm
  */
-public class GUI_Stoppuhr extends javax.swing.JFrame {
+public class GUIStoppuhr extends javax.swing.JFrame {
 
     /**
      * Creates new form GUI_Stoppuhr
      */
-    public GUI_Stoppuhr() {
+    public GUIStoppuhr() {
         initComponents();
+        setTitle("GUI");
+        setMaximumSize(new Dimension(400, 350));
+        setLocationRelativeTo(null);
+
+        jButtonConnect.setEnabled(true);
+        jButtonDisconnect.setEnabled(false);
+        jButtonStart.setEnabled(false);
+        jButtonStop.setEnabled(false);
+        jButtonClear.setEnabled(false);
+        jButtonEnd.setEnabled(false);
     }
 
     /**
@@ -69,6 +83,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.setLayout(new java.awt.GridBagLayout());
 
         jButtonConnect.setText("Connect");
+        jButtonConnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonConnectActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 10;
@@ -76,6 +95,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.add(jButtonConnect, gridBagConstraints);
 
         jButtonDisconnect.setText("Disconnect");
+        jButtonDisconnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDisconnectActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -85,6 +109,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.add(jButtonDisconnect, gridBagConstraints);
 
         jButtonStart.setText("Start");
+        jButtonStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonStartActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -94,6 +123,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.add(jButtonStart, gridBagConstraints);
 
         jButtonStop.setText("Stop");
+        jButtonStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonStopActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -103,6 +137,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.add(jButtonStop, gridBagConstraints);
 
         jButtonClear.setText("Clear");
+        jButtonClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonClearActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -112,6 +151,11 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         jPanEast.add(jButtonClear, gridBagConstraints);
 
         jButtonEnd.setText("End");
+        jButtonEnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEndActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -135,6 +179,32 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConnectActionPerformed
+        System.out.println("Button pressed" + Thread.currentThread().getId());
+        ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
+        worker.execute();
+    }//GEN-LAST:event_jButtonConnectActionPerformed
+
+    private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
+
+    }//GEN-LAST:event_jButtonDisconnectActionPerformed
+
+    private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonStartActionPerformed
+
+    private void jButtonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonStopActionPerformed
+
+    private void jButtonClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonClearActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonClearActionPerformed
+
+    private void jButtonEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEndActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonEndActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -152,20 +222,21 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GUI_Stoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIStoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GUI_Stoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIStoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GUI_Stoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIStoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GUI_Stoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUIStoppuhr.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GUI_Stoppuhr().setVisible(true);
+                new GUIStoppuhr().setVisible(true);
             }
         });
     }
@@ -185,4 +256,30 @@ public class GUI_Stoppuhr extends javax.swing.JFrame {
     private javax.swing.JSlider jSlider1;
     private javax.swing.JLabel ms;
     // End of variables declaration//GEN-END:variables
+
+    private class MyConnectionWorker extends ConnectionWorker {
+
+        public MyConnectionWorker(int port, String hostname) {
+            super(port, hostname);
+        }
+
+        @Override
+        protected void done() {
+
+            try {
+                String ergebnis = get();
+                System.out.println(ergebnis + " " + Thread.currentThread().getId());
+                jLabCounter.setText(ergebnis);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void process(List<Integer> chunks) {
+            for (int x : chunks) {
+                System.out.println("Process " + x + "Thread " + Thread.currentThread().getId());
+            }
+        }
+    }
 }

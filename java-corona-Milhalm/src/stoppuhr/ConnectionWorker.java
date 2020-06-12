@@ -1,31 +1,32 @@
 package stoppuhr;
 
-import java.util.List;
+import java.net.Socket;
 import javax.swing.SwingWorker;
 
 /**
  *
  * @author lukasmilhalm
  */
-public class ConnectionWorker extends SwingWorker<Object, Object> {
+public abstract class ConnectionWorker extends SwingWorker<String, Integer> {
 
-    public ConnectionWorker() {
+    private Socket socket;
+
+    public ConnectionWorker(int port, String hostName) {
 
     }
 
     @Override
-    protected Object doInBackground() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    protected String doInBackground() throws Exception {
+        System.out.println("Do in Background" + Thread.currentThread().getId());
+        Thread.sleep(1000);
 
-    @Override
-    protected void done() {
-        super.done();
-    }
+        publish(1);
 
-    @Override
-    protected void process(List<Object> chunks) {
-        super.process(chunks);
-    }
+        Thread.sleep(1000);
 
+        publish(2);
+
+        Thread.sleep(1000);
+        return "OK";
+    }
 }

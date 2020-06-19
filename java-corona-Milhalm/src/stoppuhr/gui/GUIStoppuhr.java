@@ -5,9 +5,17 @@
  */
 package stoppuhr.gui;
 
+import com.google.gson.Gson;
 import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import stoppuhr.ConnectionWorker;
+import stoppuhr.Server.Response;
 
 /**
  *
@@ -181,7 +189,12 @@ public class GUIStoppuhr extends javax.swing.JFrame {
 
     private void jButtonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConnectActionPerformed
         System.out.println("Button pressed" + Thread.currentThread().getId());
-        ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
+        ConnectionWorker worker = null;
+        try {
+            worker = new MyConnectionWorker(8080, "127.0.0.1");
+        } catch (IOException ex) {
+            Logger.getLogger(GUIStoppuhr.class.getName()).log(Level.SEVERE, null, ex);
+        }
         worker.execute();
     }//GEN-LAST:event_jButtonConnectActionPerformed
 
@@ -259,8 +272,32 @@ public class GUIStoppuhr extends javax.swing.JFrame {
 
     private class MyConnectionWorker extends ConnectionWorker {
 
-        public MyConnectionWorker(int port, String hostname) {
+        public MyConnectionWorker(int port, String hostname) throws IOException {
             super(port, hostname);
+        }
+
+        @Override
+        protected String doInBackground() throws Exception {
+            final Gson g = new Gson();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+
+            while (true) {
+                try {
+                    final Request resq = new Request(true);
+                    final String resString = g.toJson(resq);
+                    writer.write(resString);
+                    writer.flush();
+
+                    final String readString = reader.readLine();
+                    final Response resp = g.fromJson(readString, Response.class);
+                    publish(resp);
+
+                    Thread.sleep(1000);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
 
         @Override
@@ -276,8 +313,8 @@ public class GUIStoppuhr extends javax.swing.JFrame {
         }
 
         @Override
-        protected void process(List<Integer> chunks) {
-            for (int x : chunks) {
+        protected void process(List<Response> chunks) {
+            for (Response x : chunks) {
                 System.out.println("Process " + x + "Thread " + Thread.currentThread().getId());
             }
         }

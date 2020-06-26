@@ -5,15 +5,12 @@
  */
 package stoppuhr.gui;
 
-import com.google.gson.Gson;
 import java.awt.Dimension;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import stoppuhr.ConnectionWorker;
 import stoppuhr.Server.Response;
 
@@ -192,10 +189,11 @@ public class GUIStoppuhr extends javax.swing.JFrame {
         ConnectionWorker worker = null;
         try {
             worker = new MyConnectionWorker(8080, "127.0.0.1");
+            worker.execute();
         } catch (IOException ex) {
             Logger.getLogger(GUIStoppuhr.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Verbindung konnte nicht hergestellt werden!", "Fehler", JOptionPane.ERROR_MESSAGE);
         }
-        worker.execute();
     }//GEN-LAST:event_jButtonConnectActionPerformed
 
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
@@ -277,38 +275,14 @@ public class GUIStoppuhr extends javax.swing.JFrame {
         }
 
         @Override
-        protected String doInBackground() throws Exception {
-            final Gson g = new Gson();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-
-            while (true) {
-                try {
-                    final Request resq = new Request(true);
-                    final String resString = g.toJson(resq);
-                    writer.write(resString);
-                    writer.flush();
-
-                    final String readString = reader.readLine();
-                    final Response resp = g.fromJson(readString, Response.class);
-                    publish(resp);
-
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        @Override
         protected void done() {
 
             try {
-                String ergebnis = get();
-                System.out.println(ergebnis + " " + Thread.currentThread().getId());
-                jLabCounter.setText(ergebnis);
+                get();
+                System.out.println("Thread beendet" + Thread.currentThread().getId());
             } catch (Exception ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(GUIStoppuhr.this, "Fehler beim Beenden", "Fehler", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -316,6 +290,33 @@ public class GUIStoppuhr extends javax.swing.JFrame {
         protected void process(List<Response> chunks) {
             for (Response x : chunks) {
                 System.out.println("Process " + x + "Thread " + Thread.currentThread().getId());
+                if (x.isMaster()) {
+                    jButtonStart.setEnabled(true);
+                    jButtonStop.setEnabled(true);
+                    jButtonClear.setEnabled(true);
+                    jButtonEnd.setEnabled(true);
+                    jButtonDisconnect.setEnabled(true);
+                    jButtonConnect.setEnabled(false);
+                } else {
+                    jButtonStart.setEnabled(false);
+                    jButtonStop.setEnabled(false);
+                    jButtonClear.setEnabled(false);
+                    jButtonEnd.setEnabled(false);
+                    jButtonDisconnect.setEnabled(true);
+                    jButtonConnect.setEnabled(false);
+                }
+
+                if (x.isRunning()) {
+                    jButtonStart.setEnabled(false);
+                    jButtonStop.setEnabled(true);
+                    jButtonClear.setEnabled(true);
+                } else {
+                    jButtonStart.setEnabled(true);
+                    jButtonStop.setEnabled(false);
+                    jButtonClear.setEnabled(false);
+                }
+
+                //jLabCounter.setText(x.time);
             }
         }
     }

@@ -180,7 +180,7 @@ public class Server {
     }
 
 //--------------------------------------------------------------------------
-    public class Request {
+    public static class Request {
 
         public Boolean master;
         public Boolean start;
